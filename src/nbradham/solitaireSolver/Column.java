@@ -2,6 +2,8 @@ package nbradham.solitaireSolver;
 
 import java.util.ArrayList;
 
+import nbradham.solitaireSolver.Card.Suit;
+
 final class Column {
 
 	private final ArrayList<Card> cards = new ArrayList<>();
@@ -27,6 +29,41 @@ final class Column {
 		}
 		return score;
 	};
+
+	int size() {
+		return cards.size();
+	}
+
+	Card get(int ind) {
+		return cards.get(ind);
+	}
+
+	Column copy() {
+		Column t = new Column();
+		cards.forEach(c -> t.add(c));
+		return t;
+	}
+
+	void move(int startCard, Column destCol) {
+		while (cards.size() > startCard)
+			destCol.add(cards.remove(startCard));
+	}
+
+	Suit removeRun() {
+		int size = cards.size();
+		if (size < 13)
+			return null;
+		Suit st = cards.get(size - 1).suit();
+		for (byte i = 1; i < 14; ++i) {
+			Card c = cards.get(size - i);
+			if (c.suit() != st || c.rank().val() != i)
+				return null;
+		}
+		int e = size - 14;
+		for (int i = size - 1; i > e; --i)
+			cards.remove(i);
+		return st;
+	}
 
 	@Override
 	public final String toString() {

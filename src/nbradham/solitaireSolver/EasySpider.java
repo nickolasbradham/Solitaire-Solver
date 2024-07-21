@@ -1,5 +1,6 @@
 package nbradham.solitaireSolver;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -21,13 +22,23 @@ final class EasySpider {
 			draw.offer(Card.parse(str));
 		scan.close();
 		PriorityQueue<BoardState> queue = new PriorityQueue<>((a, b) -> b.getScore() - a.getScore());
-		BoardState bs = new BoardState(cols, draw);
+		BoardState bs = new BoardState(cols, draw, new ArrayList<>());
 		HashSet<String> history = new HashSet<>();
 		queue.offer(bs);
 		history.add(bs.getHash());
 		while ((bs = queue.poll()) != null) {
 			for (BoardState chk : bs.getChildBoards()) {
-				// TODO Process moves.
+				if (chk.foundations().size() == 8) {
+					BoardState l = chk;
+					while ((l = l.parent()) != null)
+						System.out.printf("(%d, %d) -> %d%n", l.mvSrcCol(), l.mvSrcInd(), l.mvDestCol());
+					return;
+				}
+				String h = chk.getHash();
+				if (!history.contains(h)) {
+					history.add(h);
+					queue.add(chk);
+				}
 			}
 		}
 	}
