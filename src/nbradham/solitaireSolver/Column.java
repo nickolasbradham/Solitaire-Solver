@@ -14,18 +14,20 @@ final class Column {
 		return sb.toString();
 	}
 
-	private void add(Card card) {
+	void add(Card card) {
 		cards.add(card);
 	}
 
 	short getScore() {
 		byte score = 0;
 		int e = cards.size();
-		Card last = cards.get(0);
-		for (byte i = 1; i < e; ++i) {
-			Card c = cards.get(i);
-			score += (last.rank().val() + 1 == c.rank().val() ? 1 : 0) * (last.suit() == c.suit() ? 2 : 1);
-			last = c;
+		if (e > 0) {
+			Card last = cards.get(0);
+			for (byte i = 1; i < e; ++i) {
+				Card c = cards.get(i);
+				score += (last.rank().val() + 1 == c.rank().val() ? 1 : 0) * (last.suit() == c.suit() ? 2 : 1);
+				last = c;
+			}
 		}
 		return score;
 	};

@@ -9,6 +9,8 @@ import java.util.Scanner;
 
 final class EasySpider {
 
+	private boolean run = true;
+
 	private void start() {
 		Scanner scan = new Scanner(System.in);
 		Column[] cols = new Column[10];
@@ -18,20 +20,34 @@ final class EasySpider {
 		}
 		System.out.print("Enter cards in deck: ");
 		Queue<Card> draw = new LinkedList<>();
-		for (String str : scan.nextLine().split(" "))
-			draw.offer(Card.parse(str));
+		String sStr = scan.nextLine();
+		if (sStr.length() > 0)
+			for (String str : sStr.split(" "))
+				draw.offer(Card.parse(str));
 		scan.close();
 		PriorityQueue<BoardState> queue = new PriorityQueue<>((a, b) -> b.getScore() - a.getScore());
 		BoardState bs = new BoardState(cols, draw, new ArrayList<>());
 		HashSet<String> history = new HashSet<>();
 		queue.offer(bs);
 		history.add(bs.getHash());
+		new Thread(() -> {
+			while (run) {
+				System.out.printf("Queue/History: %d/%d%nPeek: %s%n", queue.size(), history.size(), queue.peek());
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 		while ((bs = queue.poll()) != null) {
 			for (BoardState chk : bs.getChildBoards()) {
-				if (chk.foundations().size() == 8) {
+				if (chk.getFoundations().size() == 8) {
+					run = false;
 					BoardState l = chk;
-					while ((l = l.parent()) != null)
-						System.out.printf("(%d, %d) -> %d%n", l.mvSrcCol(), l.mvSrcInd(), l.mvDestCol());
+					do
+						System.out.printf("(%d, %d) -> %d%n", l.getSrcCol(), l.getSrcInd(), l.getDestCol());
+					while ((l = l.getParent()) != null);
 					return;
 				}
 				String h = chk.getHash();
@@ -41,6 +57,8 @@ final class EasySpider {
 				}
 			}
 		}
+		run = false;
+		System.out.println("No solution found.");
 	}
 
 	public static void main(String[] args) {
